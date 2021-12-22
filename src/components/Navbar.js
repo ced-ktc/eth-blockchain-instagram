@@ -19,9 +19,9 @@ class Navbar extends Component {
         <ul className="navbar-nav px-3">
           <li className="nav-item text-nowrap d-none d-sm-none d-sm-block">
             <small className="text-secondary">
-              <small id="account">{this.props.account}</small>
+              <small id="account">{'0x0'}</small>
             </small>
-            { this.props.account
+            {this.props.account
               ? <img
                 className='ml-2'
                 width='30'
