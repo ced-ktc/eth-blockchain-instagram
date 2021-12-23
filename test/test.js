@@ -64,5 +64,39 @@ contract('DInstagram', ([deployer, author, tipper]) => {
       assert.equal(image.tipAmount, '0', 'Tip amount is correct')
       assert.equal(image.author, author, 'Author is correct')
     })
+
+
+    it('allows users to tip images', async()=>{
+      //Track the author balance before purchase
+      let oldAuthorBalance
+      oldAuthorBalance = await web3.eth.getBalance(author)
+      oldAuthorBalance = new web3.utils.BN(oldAuthorBalance)
+
+      result = await dInstagram.tipImageOwner(imageCount, {from:tipper, value:web3.utils.toWei('1','Ether')})
+
+      //SUCCESS
+      const event = result.logs[0].args
+      assert.equal(event._id.toNumber(), imageCount.toNumber(), 'id is correct')
+      assert.equal(event._hash, hash, 'Hash is correct')
+      assert.equal(event._description, 'Image description')
+      assert.equal(event._tipAmount, '1000000000000000000', 'tip amount is correct')
+      assert.equal(event._author, author, 'author is correct')
+
+      //Check that author received funds
+      let newAuthorBalance;
+      newAuthorBalance = await web3.eth.getBalance(author)
+      newAuthorBalance = new web3.utils.BN(newAuthorBalance)
+
+      let tipAmount
+      tipAmount = web3.utils.toWei('1', 'Ether')
+      tipAmount = new web3.utils.BN(tipAmount)
+
+      const expectedBalance = oldAuthorBalance.add(tipAmount)
+
+      assert.equal(newAuthorBalance.toString(), expectedBalance.toString())
+
+      //FAILURE: Tries to tip an image that does not exist
+      dInstagram.tipImageOwner(99, {from:tipper, value:web3.utils.toWei('1', 'Ether')}).should.be.rejected;
+  })
   })
 })
